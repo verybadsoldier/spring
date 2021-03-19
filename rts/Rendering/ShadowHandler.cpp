@@ -101,8 +101,8 @@ void CShadowHandler::Init()
 	if (SpringVersion::IsHeadless())
 		return;
 
-	if (!globalRendering->haveARB && !globalRendering->haveGLSL) {
-		LOG_L(L_WARNING, "[%s] GPU does not support either ARB or GLSL shaders for shadow rendering", __func__);
+	if (!globalRendering->haveGLSL) {
+		LOG_L(L_WARNING, "[%s] GPU does not support GLSL shaders for shadow rendering", __func__);
 		return;
 	}
 
@@ -231,7 +231,7 @@ void CShadowHandler::LoadShadowGenShaders()
 
 	if (globalRendering->haveGLSL) {
 		for (int i = 0; i < SHADOWGEN_PROGRAM_LAST; i++) {
-			Shader::IProgramObject* po = sh->CreateProgramObject("[ShadowHandler]", shadowGenProgHandles[i] + "GLSL", false);
+			Shader::IProgramObject* po = sh->CreateProgramObject("[ShadowHandler]", shadowGenProgHandles[i] + "GLSL");
 
 			if (i == SHADOWGEN_PROGRAM_MAP) {
 				po->AttachShaderObject(sh->CreateShaderObject("GLSL/ShadowGenVertProg.glsl", versionDefs[0] + shadowGenProgDefines[i] + extraDefs, GL_VERTEX_SHADER));
@@ -252,16 +252,6 @@ void CShadowHandler::LoadShadowGenShaders()
 			po->SetUniform2f(5, mapInfo->map.voidAlphaMin, 0.0f); // alphaParams
 			po->Disable();
 			po->Validate();
-
-			shadowGenProgs[i] = po;
-		}
-	} else {
-		for (int i = 0; i < SHADOWGEN_PROGRAM_LAST; i++) {
-			Shader::IProgramObject* po = sh->CreateProgramObject("[ShadowHandler]", shadowGenProgHandles[i] + "ARB", true);
-			Shader::IShaderObject* so = sh->CreateShaderObject(shadowGenProgNames[i], "", GL_VERTEX_PROGRAM_ARB);
-
-			po->AttachShaderObject(so);
-			po->Link();
 
 			shadowGenProgs[i] = po;
 		}
@@ -624,16 +614,6 @@ void CShadowHandler::CreateShadows()
 	SetShadowCamera(CCameraHandler::GetCamera(CCamera::CAMTYPE_SHADOW));
 
 	CCamera* prvCam = CCameraHandler::GetSetActiveCamera(CCamera::CAMTYPE_SHADOW);
-
-	if (globalRendering->haveARB) {
-		// set the shadow-parameter registers
-		// NOTE: so long as any part of Spring rendering still uses
-		// ARB programs at run-time, these lines can not be removed
-		// (all ARB programs share the same environment)
-		glProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 16, shadowTexProjCenter.x, shadowTexProjCenter.y, 0.0f, 0.0f);
-		glProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 17, shadowTexProjCenter.z, shadowTexProjCenter.z, 0.0f, 0.0f);
-		glProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 18, shadowTexProjCenter.w, shadowTexProjCenter.w, 0.0f, 0.0f);
-	}
 
 	if (globalRendering->haveGLSL) {
 		for (int i = 0; i < SHADOWGEN_PROGRAM_LAST; i++) {
