@@ -153,7 +153,6 @@ public:
 	float aspectRatio;
 
 	int forceDisablePersistentMapping;
-	int forceDisableShaders;
 	int forceCoreContext;
 	int forceSwapBuffers;
 
@@ -261,11 +260,6 @@ public:
 	bool supportClipSpaceControl;
 	bool supportSeamlessCubeMaps;
 	bool supportFragDepthLayout;
-
-	/**
-	 * Shader capabilities
-	 */
-	bool haveGLSL;
 
 	/**
 	 * Shader capabilities
