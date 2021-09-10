@@ -623,6 +623,7 @@ public:
 		y = 0.0f; return SafeANormalize();
 	}
 
+	bool Normalized() const { return math::fabs(1.0f - SqLength()) <= cmp_eps(); }
 
 	static bool CheckNaN(float c) { return (!math::isnan(c) && !math::isinf(c)); }
 
@@ -730,6 +731,12 @@ static constexpr float3 OnesVector(1.0f, 1.0f, 1.0f);
 static constexpr float3 XYVector(1.0f, 1.0f, 0.0f);
 static constexpr float3 XZVector(1.0f, 0.0f, 1.0f);
 static constexpr float3 YZVector(0.0f, 1.0f, 1.0f);
+
+
+inline float3 operator*(const float f, const float3& v) {
+	return v * f;
+}
+
 
 #endif /* FLOAT3_H */
 
