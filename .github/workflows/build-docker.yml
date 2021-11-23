@@ -53,14 +53,14 @@ jobs:
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
         shell: bash
 
-      - name: Build Info
+      - name: Print Build Info
         run: |
           echo "Build info:"
           echo "Git commit hash: ${{ github.sha }}"
           echo "Repository: ${{ github.repository }}"
         shell: bash
         
-      - name: Checkout engine repository
+      - name: Checkout Source Repository
         uses: actions/checkout@v2
 
       - name: Get Random Number
@@ -71,7 +71,7 @@ jobs:
           echo "::set-output name=number::$number"
         shell: bash
 
-      - name: Download Cache Data
+      - name: Download ccache Data
         if: github.event.inputs.use-cache == 'true'
         id: cache-dl
         uses: actions/cache@v2
@@ -81,7 +81,7 @@ jobs:
           restore-keys: |
             ccache-${{ matrix.config.os }}-
 
-      - name: Check and Unpack Cache Data
+      - name: Check and unpack ccache Data
         id: cache
         run: |
           CACHE_FILENAME="/tmp/ccache_archive/${{ matrix.config.os }}.tgz"
@@ -135,7 +135,7 @@ jobs:
           name: buildoptions_${{ matrix.config.os }}.txt
           path: ${{ github.workspace }}/artifacts/buildoptions_${{ matrix.config.os }}.txt
 
-      - name: Pack Cache Data
+      - name: Pack ccache Data
         if: github.event.inputs.use-cache == 'true'
         run: |
           CACHE_FILENAME="${{ steps.cache.outputs.cache-filename }}"

@@ -99,6 +99,7 @@ RUN git clone https://github.com/ccache/ccache.git /tmp/ccache/src; \
 
 # Setup ccache
 ENV CCACHE_DIR=/ccache
+ENV CCACHE_CONFIGPATH=/etc/ccache.conf
 ENV PATH="/usr/lib/ccache:${PATH}"
 
 # set primary config so no config from cache directory will be used
