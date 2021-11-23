@@ -40,17 +40,18 @@ RUN apt-get update;apt-get install -y \
 
 # Install MXE and build cross-compile windows gcc
 RUN cd /; \
-	git clone https://github.com/mxe/mxe.git; \
-	cd mxe; \
-	git checkout $mxe_version; \
-	make cc -j$(nproc) MXE_USE_CCACHE= MXE_PLUGIN_DIRS=plugins/$mxe_gcc MXE_TARGETS=x86_64-w64-mingw32.static; \
-	rm -rf /mxe/pkg /mxe/src /mxe/log /mxe/.git
+    git clone https://github.com/mxe/mxe.git; \
+    cd mxe; \
+    git checkout $mxe_version; \
+    make cc -j$(nproc) MXE_USE_CCACHE= MXE_PLUGIN_DIRS=plugins/$mxe_gcc MXE_TARGETS=x86_64-w64-mingw32.static; \
+    rm -rf /mxe/pkg /mxe/src /mxe/log /mxe/.git
 
 
 # Main Image
 FROM ubuntu:18.04
 
 ARG cmake_version=3.16.*
+ARG ccache_version="v4.5.1"
 
 COPY --from=mxe /mxe /mxe
 ENV PATH="/mxe/usr/bin:${PATH}"
@@ -60,30 +61,41 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install Build Dependencies (Common)
 RUN apt-get update -y; \
-	apt-get install --fix-missing -y \
-		  clang-format \
-		  coreutils \
-		  git \
-		  ninja-build \
-		  p7zip-full \
-		  pigz \
-		  software-properties-common \
-		  ccache \
-		  python3-pip; \
-		  pip3 install cmake==$cmake_version; \
-		  apt purge python3-pip -y; apt auto-remove -y
+    apt-get install --fix-missing -y \
+        clang-format \
+        coreutils \
+        git \
+        ninja-build \
+        p7zip-full \
+        pigz \
+        software-properties-common \
+        python3-pip; \
+        pip3 install cmake==$cmake_version; \
+        apt purge python3-pip -y; apt auto-remove -y
 
 # GCC-10 PPA (linux-64)
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y; \
-        apt update -y; \
-        apt install -y gcc-10 g++-10
+    apt update -y; \
+    apt install -y gcc-10 g++-10
 
 # Install Build Dependencies (linux-64)
-RUN  apt-get install --fix-missing -y \
+RUN apt-get install --fix-missing -y \
         libsdl2-dev \
         libopenal-dev \
         libfreetype6-dev \
         libfontconfig1-dev
+
+# Compile and install ccache
+RUN git clone https://github.com/ccache/ccache.git /tmp/ccache/src; \
+    cd /tmp/ccache/src; \
+    git checkout $ccache_version; \
+    mkdir -p build; \
+    cd build; \
+    cmake .. -DHIREDIS_FROM_INTERNET=ON -DZSTD_FROM_INTERNET=ON -DCMAKE_INSTALL_PREFIX=/tmp/ccache/bin -DCMAKE_INSTALL_SYSCONFDIR=/etc -DENABLE_DOCUMENTATION= -DENABLE_TESTING=; \
+    make -j$(nproc); \
+    make install; \
+    cp /tmp/ccache/bin/bin/ccache /usr/bin; \
+    rm -rf /tmp/ccache
 
 # Setup ccache
 ENV CCACHE_DIR=/ccache
@@ -91,11 +103,12 @@ ENV PATH="/usr/lib/ccache:${PATH}"
 
 # set primary config so no config from cache directory will be used
 COPY config/ccache.conf /etc/ccache.conf
-ENV CCACHE_CONFIGPATH=/etc/ccache.conf
 
-RUN /usr/sbin/update-ccache-symlinks; \
+RUN mkdir -p /usr/lib/ccache; \
         ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-g++; \
-        ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-gcc
+        ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-gcc; \
+       	ln -s ../../bin/ccache /usr/lib/ccache/g++; \
+        ln -s ../../bin/ccache /usr/lib/ccache/gcc
 
 COPY scripts /scripts
 ENV PATH="/scripts:${PATH}"
