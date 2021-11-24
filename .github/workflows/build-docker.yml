@@ -6,8 +6,8 @@ on:
         description: Strip Debug Symbols
         required: true
         default: "true"
-      use-cache:
-        description: Use Cache
+      use-caches:
+        description: Use Caches (Docker/ccache)
         required: true
         default: "true"
       archtune-flags:
@@ -72,7 +72,7 @@ jobs:
         shell: bash
 
       - name: Download ccache Data
-        if: github.event.inputs.use-cache == 'true'
+        if: github.event.inputs.use-caches == 'true'
         id: cache-dl
         uses: actions/cache@v2
         with:
@@ -111,7 +111,7 @@ jobs:
           archtune-flags: ${{ github.event.inputs.archtune-flags }}
           relwithdeb-flags: ${{ github.event.inputs.relwithdeb-flags }}
           compilation-flags: ${{ github.event.inputs.compilation-flags }}
-          use-cache: ${{ github.event.inputs.use-cache }}
+          use-cache: ${{ github.event.inputs.use-caches }}
           platform: ${{ matrix.config.os }}
           branch: ${{ env.BRANCH_NAME }}
           repository-url: https://github.com/${{ github.repository }}
@@ -136,7 +136,7 @@ jobs:
           path: ${{ github.workspace }}/artifacts/buildoptions_${{ matrix.config.os }}.txt
 
       - name: Pack ccache Data
-        if: github.event.inputs.use-cache == 'true'
+        if: github.event.inputs.use-caches == 'true'
         run: |
           CACHE_FILENAME="${{ steps.cache.outputs.cache-filename }}"
           echo "Creating cache file: ${CACHE_FILENAME}"
