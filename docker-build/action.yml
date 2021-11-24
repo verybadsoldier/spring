@@ -63,7 +63,13 @@ runs:
       run: |
           pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
           docker load -i /tmp/docker/local.tar
-      shell: bash      
+      shell: bash 
+
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      #if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+
     - run: |
         ARGS=(run --rm -v /tmp/ccache:/ccache -v "${{ github.workspace }}/artifacts:/publish" local build)
         ARGS+=(-p "${{ inputs.platform }}" -u "${{ inputs.repository-url }}" -b "${{ inputs.branch }}" -c "${{ inputs.archtune-flags }}" -r "${{ inputs.relwithdeb-flags }}" -f "${{ inputs.compilation-flags }}")
