@@ -42,10 +42,6 @@ jobs:
             os: 'windows-64',
             runs-on: 'ubuntu-20.04'
           }
-#        - {
-#            os: 'windows-32',
-#            runs-on: 'ubuntu-20.04'
-#          }
         - {
             os: 'linux-64',
             runs-on: 'ubuntu-18.04'
@@ -150,3 +146,9 @@ jobs:
           tar cvf - -C /tmp/ccache . 2> /dev/null | pigz -1 > "${CACHE_FILENAME}"
           echo "Raw ccache size: $(du -sch /tmp/ccache | tail -n1 | cut -f1)"
           echo "Archived ccache size: $(du -h "${CACHE_FILENAME}" | cut -f1)"
+
+      - name: Upload ccache Debug Data
+        uses: actions/upload-artifact@v2
+        with:
+          name: ccache_debug_${{ matrix.config.os }}.tgz
+          path: ${{ github.workspace }}/artifacts/ccache_dbg.tgz

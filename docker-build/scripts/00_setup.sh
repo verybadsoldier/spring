@@ -4,6 +4,7 @@ BRANCH_NAME="BAR105"
 PLATFORM="windows-64"
 DUMMY=
 ENABLE_CCACHE=1
+DEBUG_CCACHE=
 STRIP_SYMBOLS=1
 
 MYARCHTUNE=""
@@ -15,7 +16,8 @@ BUILD_DIR="/spring/build"
 PUBLISH_DIR="/publish"
 
 
-while getopts :b:u:a:p:dc:h:r:f:s: flag
+
+while getopts :b:u:a:p:dc:h:r:f:s:z: flag
 do
     case "${flag}" in
         b) BRANCH_NAME=${OPTARG};;
@@ -28,6 +30,7 @@ do
         r) MYRWDIFLAGS=${OPTARG};;
         f) MYCFLAGS=${OPTARG};;
         s) STRIP_SYMBOLS=${OPTARG};;
+        z) DEBUG_CCACHE=${OPTARG};;
         \:) printf "argument missing from -%s option\n" $OPTARG >&2
             exit 2
             ;;
@@ -55,5 +58,6 @@ echo "Archtune flags: ${MYARCHTUNE}"
 echo "Extra compilation flags: ${MYCFLAGS}"
 echo "Dummy mode: ${DUMMY}"
 echo "Enable ccache: ${ENABLE_CCACHE}"
+echo "Debug ccache: ${DEBUG_CCACHE}"
 echo "Strip debug symbols: ${STRIP_SYMBOLS}"
 echo "---------------------------------"
