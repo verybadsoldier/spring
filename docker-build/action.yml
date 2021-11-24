@@ -24,15 +24,23 @@ inputs:
   use-cache:
     description: 'Use Cache'
     required: false
-    default: true
+    default: 'true'
   strip-symbols:
     description: 'Strip debug symbols from artifacts'
     required: false
-    default: true
+    default: 'true'
   repository-url:
     description: 'URL of the SpringRTS git repository'
-    required: false
+    required: 'false'
     default: 'https://github.com/beyond-all-reason/spring '
+  debug-tmate:
+    description: 'Debug with tmate'
+    required: false
+    default: 'false'
+  docker-image:
+    description: 'Docker Image to use from Docker Hub ("local" to use embedded Image)'
+    required: false
+    default: 'verybadsoldier/springrts-build:dbg'
 outputs:
   bin_name:
     description: 'Spring Binary Package Filename'
@@ -50,28 +58,24 @@ runs:
       with:
         path: /tmp/docker
         key: docker-image-${{ hashFiles('./docker-build/**') }}
-    - name: Build and store Docker image
-      if: steps.cache-dl-docker.outputs.cache-hit != 'true'
-      run: |
-          docker build -t local ./docker-build
-          mkdir -p /tmp/docker
-          echo "Saving docker image to /tmp/docker/local.tgz..."
-          docker save local | pigz -1 > /tmp/docker/local.tgz
-      shell: bash
-    - name: Extract Docker image
-      if: steps.cache-dl-docker.outputs.cache-hit == 'true'
-      run: |
-          pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
-          docker load -i /tmp/docker/local.tar
-      shell: bash 
+  #  - name: Build and store Docker image
+  #    if: steps.cache-dl-docker.outputs.cache-hit != 'true'
+  #    run: |
+  #        docker build -t local ./docker-build
+  #        mkdir -p /tmp/docker
+  #        echo "Saving docker image to /tmp/docker/local.tgz..."
+  #        docker save local | pigz -1 > /tmp/docker/local.tgz
+  #    shell: bash
+  #  - name: Extract Docker image
+  #    if: steps.cache-dl-docker.outputs.cache-hit == 'true'
+  #    run: |
+  #        pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
+  #        docker load -i /tmp/docker/local.tar
+  #    shell: bash 
 
-      # Enable tmate debugging of manually-triggered workflows if the input option was provided
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-      #if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-
-    - run: |
-        ARGS=(run --rm -v /tmp/ccache:/ccache -v "${{ github.workspace }}/artifacts:/publish" local build)
+    - name: Run Docker Build
+      run: |
+        ARGS=(run -v /tmp/ccache:/ccache -v "${{ github.workspace }}/artifacts:/publish" "${{ inputs.docker-image }}" build)
         ARGS+=(-p "${{ inputs.platform }}" -u "${{ inputs.repository-url }}" -b "${{ inputs.branch }}" -c "${{ inputs.archtune-flags }}" -r "${{ inputs.relwithdeb-flags }}" -f "${{ inputs.compilation-flags }}")
         if [ ${use-cache} ]; then
           ARGS+=(-h 1)
@@ -81,8 +85,18 @@ runs:
           ARGS+=(-s 1)
         fi
 
-        echo "Running docker with arguments: ${ARGS[@]}"
-        docker "${ARGS[@]}"
+        echo "Running docker with arguments: 'docker ${ARGS[@]}'"
+
+        echo "tmate-debug: ${{ inputs.debug-tmate }}"
+
+        if [ "${{ inputs.debug-tmate }}" == "true" ]; then
+          echo "tmate debugging enabled. Skipping docker run command. Connect via SSH now..."
+        else
+          docker "${ARGS[@]}"
+        fi
       shell: bash
       id: docker-run
 
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ inputs.debug-tmate == 'true' }}
