@@ -44,6 +44,9 @@ RUN cd /; \
     git checkout $mxe_version; \
     make cc -j$(nproc) MXE_USE_CCACHE= MXE_PLUGIN_DIRS=plugins/$mxe_gcc MXE_TARGETS=x86_64-w64-mingw32.static; \
     rm -rf /mxe/pkg /mxe/src /mxe/log /mxe/.git
+    #; \
+    #tar cfv /tmp/mxe.tar /mxe; \
+    #rm -rf /mxe
 
 
 # Main Image
@@ -53,6 +56,10 @@ ARG cmake_version=3.16.*
 ARG ccache_version="v4.5.1"
 
 COPY --from=mxe /mxe /mxe
+#COPY --from=mxe /mxe.tar /tmp/mxe.tar
+#RUN tar xvf /tmp/mxe.tar /; \
+#    rm /tmp/mxe.tar
+
 ENV PATH="/mxe/usr/bin:${PATH}"
 
 # suppress questions from apt
@@ -111,7 +118,9 @@ RUN mkdir -p /usr/lib/ccache; \
         /scripts/update-ccache-symlinks.sh; \
         ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-g++; \
         ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-c++; \
-        ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-gcc
+        ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-gcc; \
+        echo "Fixing MXE modification times"; \
+        find /mxe -type f -exec touch {} +
 
 VOLUME /publish
 
