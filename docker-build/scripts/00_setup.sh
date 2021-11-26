@@ -70,10 +70,23 @@ else
     echo "Using ccache in directory: ${CCACHE_DIR}"
 
     echo "Content of ccache links: $(ls -la /usr/lib/ccache)"
-    
+
     if [ "${DEBUG_CCACHE}" == "1" ]; then
         echo "ccache debugging enabled"
-        CCACHE_DEBUG=1
+        export CCACHE_DEBUG=1
         mkdir -p /ccache_dbg
     fi
 fi
+
+
+
+echo "---------------------------------"
+echo "MXE compiler stats:"
+stat /mxe/usr/bin/x86_64-w64-mingw32.static-g++
+stat /mxe/usr/bin/x86_64-w64-mingw32.static-c++
+stat /mxe/usr/bin/x86_64-w64-mingw32.static-gcc
+stat /usr/bin/ccache
+stat /usr/lib/ccache/x86_64-w64-mingw32.static-g++
+stat /usr/lib/ccache/x86_64-w64-mingw32.static-c++
+stat /usr/lib/ccache/x86_64-w64-mingw32.static-gcc
+echo "---------------------------------"
