@@ -61,3 +61,19 @@ echo "Enable ccache: ${ENABLE_CCACHE}"
 echo "Debug ccache: ${DEBUG_CCACHE}"
 echo "Strip debug symbols: ${STRIP_SYMBOLS}"
 echo "---------------------------------"
+
+# configuring ccache
+if [ "${ENABLE_CCACHE}" != "1" ]; then
+    echo "Disabling ccache"
+    export CCACHE_DISABLE=1
+else
+    echo "Using ccache in directory: ${CCACHE_DIR}"
+
+    echo "Content of ccache links: $(ls -la /usr/lib/ccache)"
+    
+    if [ "${DEBUG_CCACHE}" == "1" ]; then
+        echo "ccache debugging enabled"
+        CCACHE_DEBUG=1
+        mkdir -p /ccache_dbg
+    fi
+fi

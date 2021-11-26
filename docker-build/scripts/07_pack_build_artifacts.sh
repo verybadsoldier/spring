@@ -21,7 +21,7 @@ fi
 
 if [ -d /ccache_dbg ]; then
     echo "Packing ccache debug data..."
-    tar cvfz /publish/ccache_dbg.tgz -C /ccache_dbg /ccache_dbg
+    tar cvfz /publish/ccache_dbg.tgz -C /ccache_dbg /ccache_dbg > /dev/null 2>&1
 else
     echo "No ccache debug data, so skipping packing it..."
 fi
