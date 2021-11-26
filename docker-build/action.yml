@@ -42,9 +42,9 @@ inputs:
     required: false
     default: 'true'
   docker-image:
-    description: 'Docker Image to use from Docker Hub ("local" to use embedded Image)'
+    description: 'Docker Image to use from Docker Hub (instead of embedded image)'
     required: false
-    #default: 'local'
+    #default: ''
     default: 'verybadsoldier/springrts-build:dbg'
 outputs:
   bin_name:
@@ -56,28 +56,28 @@ outputs:
 runs:
   using: "composite"
   steps:
-#    - name: Download Cache Data
-#      if: inputs.use-cache == 'true'
-#      id: cache-dl-docker
-#      uses: actions/cache@v2
-#      with:
-#        path: /tmp/docker
-#        key: docker-image-${{ hashFiles('./docker-build/**') }}
-#    - name: Build and store Docker image
-#      if: steps.cache-dl-docker.outputs.cache-hit != 'true'
-#      run: |
-#          docker build -t local ./docker-build
-#          mkdir -p /tmp/docker
-#          echo "Saving docker image to /tmp/docker/local.tgz..."
-#          docker save local | pigz -1 > /tmp/docker/local.tgz
-#      shell: bash
-#    - name: Extract Docker image
-#      if: steps.cache-dl-docker.outputs.cache-hit == 'true'
-#      run: |
-#          pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
-#          docker load -i /tmp/docker/local.tar
-#      shell: bash 
-#
+    - name: Download Cache Data
+      if: inputs.use-cache == 'true' && inputs.docker-image == '*'
+      id: cache-dl-docker
+      uses: actions/cache@v2
+      with:
+        path: /tmp/docker
+        key: docker-image-${{ hashFiles('./docker-build/**') }}
+    - name: Build and store Docker image
+      if: steps.cache-dl-docker.outputs.cache-hit != 'true' && inputs.docker-image == '*'
+      run: |
+          docker build -t local ./docker-build
+          mkdir -p /tmp/docker
+          echo "Saving docker image to /tmp/docker/local.tgz..."
+          docker save local | pigz -1 > /tmp/docker/local.tgz
+      shell: bash
+    - name: Extract Docker image
+      if: steps.cache-dl-docker.outputs.cache-hit == 'true' && inputs.docker-image == '*'
+      run: |
+          pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
+          docker load -i /tmp/docker/local.tar
+      shell: bash 
+
     - name: Run Docker Build
       run: |
         # Docker args
@@ -87,8 +87,15 @@ runs:
           ARGS+=(-v "${{ github.workspace }}/ccache_dbg:/ccache_dbg" )
         fi
         
+        DOCKER_IMAGE="${{ inputs.docker-image }}"
+        if [ "${DOCKER_IMAGE}" == "*" ]; then
+          DOCKER_IMAGE="local"
+        fi
+
+        echo "Docker image: ${DOCKER_IMAGE}"
+
         # Image args
-        ARGS+=("${{ inputs.docker-image }}" build -p "${{ inputs.platform }}" -u "${{ inputs.repository-url }}" -b "${{ inputs.branch }}" -c "${{ inputs.archtune-flags }}" -r "${{ inputs.relwithdeb-flags }}" -f "${{ inputs.compilation-flags }}")
+        ARGS+=("${DOCKER_IMAGE}" build -p "${{ inputs.platform }}" -u "${{ inputs.repository-url }}" -b "${{ inputs.branch }}" -c "${{ inputs.archtune-flags }}" -r "${{ inputs.relwithdeb-flags }}" -f "${{ inputs.compilation-flags }}")
         if [ "${use-cache}" == "true" ]; then
           ARGS+=(-h 1)
         fi

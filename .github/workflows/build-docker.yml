@@ -30,6 +30,15 @@ on:
         description: Debug with tmate
         required: false
         default: 'false'
+      debug-ccache:
+        description: Generate ccache Debug Artifacts
+        required: false
+        default: 'true'
+      docker-image:
+        description: 'Docker Image to use (Docker Hub name or "*" to used embedded image)'
+        required: false
+        #default: ''
+        default: 'verybadsoldier/springrts-build:dbg'
 jobs: 
   build_engine:
     name: ${{ matrix.config.os }}
@@ -108,14 +117,16 @@ jobs:
         uses: ./docker-build
         id: run-docker-build
         with:
-          archtune-flags: ${{ github.event.inputs.archtune-flags }}
-          relwithdeb-flags: ${{ github.event.inputs.relwithdeb-flags }}
-          compilation-flags: ${{ github.event.inputs.compilation-flags }}
-          use-cache: ${{ github.event.inputs.use-caches }}
-          platform: ${{ matrix.config.os }}
-          branch: ${{ env.BRANCH_NAME }}
-          repository-url: https://github.com/${{ github.repository }}
-          debug-tmate: ${{ github.event.inputs.debug-tmate }}
+          archtune-flags: "${{ github.event.inputs.archtune-flags }}"
+          relwithdeb-flags: "${{ github.event.inputs.relwithdeb-flags }}"
+          compilation-flags: "${{ github.event.inputs.compilation-flags }}"
+          use-cache: "${{ github.event.inputs.use-caches }}"
+          platform: "${{ matrix.config.os }}"
+          branch: "${{ env.BRANCH_NAME }}"
+          repository-url: "https://github.com/${{ github.repository }}"
+          debug-tmate: "${{ github.event.inputs.debug-tmate }}"
+          debug-ccache: "${{ github.event.inputs.debug-ccache }}"
+          docker-image: "${{ github.event.inputs.docker-image }}"
 
       - name: Upload Bin as Artifact
         uses: actions/upload-artifact@v2
@@ -149,6 +160,7 @@ jobs:
 
       - name: Upload ccache Debug Data
         uses: actions/upload-artifact@v2
+        if: github.event.inputs.debug-ccache == 'true'
         with:
           name: ccache_debug_${{ matrix.config.os }}.tgz
           path: ${{ github.workspace }}/artifacts/ccache_dbg.tgz
