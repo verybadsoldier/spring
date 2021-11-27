@@ -118,9 +118,7 @@ RUN mkdir -p /usr/lib/ccache; \
         /scripts/update-ccache-symlinks.sh; \
         ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-g++; \
         ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-c++; \
-        ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-gcc; \
-        echo "Fixing MXE modification times"; \
-        find /mxe -type f -exec touch {} +
+        ln -s ../../bin/ccache /usr/lib/ccache/x86_64-w64-mingw32.static-gcc
 
 VOLUME /publish
 
