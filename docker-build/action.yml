@@ -44,7 +44,7 @@ inputs:
   docker-image:
     description: 'Docker Image to use from Docker Hub (instead of embedded image)'
     required: false
-    #default: ''
+    #default: '*'
     default: 'verybadsoldier/springrts-build:dbg'
 outputs:
   bin_name:
@@ -67,8 +67,10 @@ runs:
     - name: Get Primary Cache key
       id: get-prim-cache-key
       run: |
+        # we the docker image built by linux-64 to not be cached since it would force cache-misses for windows-64
+        # so we add a random string to the linux-key so windows-64 won't pick it up
         CACHEKEY="docker-image-${{ hashFiles('./docker-build/**') }}"
-        if [ inputs.platform == "linux-64" ]; then
+        if [ ${{ inputs.platform }} == "linux-64" ]; then
           CACHEKEY+=${{ steps.get-random-number.outputs.number }}
         fi
         echo "::set-output name=cachekey::$CACHEKEY"
@@ -88,7 +90,9 @@ runs:
       run: |
           docker build -t local ./docker-build
           mkdir -p /tmp/docker
-          if [ inputs.platform == "windows-64" ]; then
+
+          # as we don't linux to cache its docker image (as described above), we don't store the linux docker image
+          if [ ${{ inputs.platform }} == "windows-64" ]; then
             echo "Saving docker image to /tmp/docker/local.tgz..."
             docker save local | pigz -1 > /tmp/docker/local.tgz
           fi
@@ -142,4 +146,4 @@ runs:
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
-      if: ${{ inputs.debug-tmate == 'pre' || inputs.debug-tmate == 'after' }}
+      if: ${{ inputs.debug-tmate == 'pre' || inputs.debug-tmate == 'post' }}

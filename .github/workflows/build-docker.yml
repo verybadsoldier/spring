@@ -23,22 +23,22 @@ on:
         required: false
         default: ''
       clean-ccache:
-        description: Reset ccache
+        description: Reset ccache before build
         required: false
         default: 'false'
       debug-tmate:
-        description: Debug with tmate
+        description: Debug with tmate (either "pre" or "post" Docker run)
         required: false
         default: 'false'
       debug-ccache:
         description: Generate ccache Debug Artifacts
         required: false
-        default: 'true'
+        default: 'false'
       docker-image:
         description: 'Docker Image to use (Docker Hub name or "*" to used embedded image)'
         required: false
-        #default: ''
-        default: 'verybadsoldier/springrts-build:dbg'
+        default: '*'
+        #default: 'verybadsoldier/springrts-build:dbg'
 jobs: 
   build_engine:
     name: ${{ matrix.config.os }}
