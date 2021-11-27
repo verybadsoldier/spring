@@ -56,22 +56,16 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Get Random Number
-      id: get-random-number
-      run: |
-        number=$(head /dev/random -c 32 | sha1sum | awk '{ print $1 }')
-        echo "Generated random number: $number"
-        echo "::set-output name=number::$number"
-      shell: bash
-
     - name: Get Primary Cache key
       id: get-prim-cache-key
       run: |
+        # Docker image will be built by both jobs (win and linux) but we want to only cache the windows one
         # we dont want the docker image built by linux-64 to be cached since it would produce ccache-misses for windows-64
         # so we add a random string to the linux-key so windows-64 won't pick it up
         CACHEKEY="docker-image-${{ hashFiles('./docker-build/**') }}"
         if [ ${{ inputs.platform }} == "linux-64" ]; then
-          CACHEKEY+=${{ steps.get-random-number.outputs.number }}
+          RANDOMNUMB=$(head /dev/random -c 32 | sha1sum | awk '{ print $1 }')
+          CACHEKEY+="-${RANDOMNUMB}"
         fi
         echo "::set-output name=cachekey::$CACHEKEY"
       shell: bash
@@ -96,12 +90,12 @@ runs:
             pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
             docker load -i /tmp/docker/local.tar
           else
-            echo "Building Docker image..."
-            
+            echo "No cached Docker image found. Building Docker image from scratch..."
+
             docker build -t local ./docker-build
             mkdir -p /tmp/docker
 
-            # as we don't linux to cache its docker image (as described above), we don't store the linux docker image
+            # as we don't want linux to cache its docker image (as described above), we don't store the linux docker image
             if [ ${{ inputs.platform }} == "windows-64" ]; then
               echo "Saving docker image to /tmp/docker/local.tgz..."
               docker save local | pigz -1 > /tmp/docker/local.tgz
