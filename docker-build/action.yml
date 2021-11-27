@@ -85,28 +85,29 @@ runs:
         key: ${{ steps.get-prim-cache-key.outputs.cachekey }}
         restore-keys: |
           docker-image-${{ hashFiles('./docker-build/**') }}
-    - name: Build and store Docker image
-      if: steps.cache-dl-docker.outputs.cache-hit != 'true' && inputs.docker-image == '*'
-      run: |
-          docker build -t local ./docker-build
-          mkdir -p /tmp/docker
 
-          # as we don't linux to cache its docker image (as described above), we don't store the linux docker image
-          if [ ${{ inputs.platform }} == "windows-64" ]; then
-            echo "Saving docker image to /tmp/docker/local.tgz..."
-            docker save local | pigz -1 > /tmp/docker/local.tgz
-          fi
-      shell: bash
-    - name: Extract Docker image
+    - name: Extract or build Docker image
       if: inputs.docker-image == '*'
       run: |
           if [ -f /tmp/docker/local.tgz ]; then
+            echo "Found cached Docker image: /tmp/docker/local.tgz"
+
+            echo "Extracting and loading..."
             pigz -dc /tmp/docker/local.tgz > /tmp/docker/local.tar
             docker load -i /tmp/docker/local.tar
           else
-            echo "Docker image to extract not found: /tmp/docker/local.tgz"
+            echo "Building Docker image..."
+            
+            docker build -t local ./docker-build
+            mkdir -p /tmp/docker
+
+            # as we don't linux to cache its docker image (as described above), we don't store the linux docker image
+            if [ ${{ inputs.platform }} == "windows-64" ]; then
+              echo "Saving docker image to /tmp/docker/local.tgz..."
+              docker save local | pigz -1 > /tmp/docker/local.tgz
+            fi
           fi
-      shell: bash 
+      shell: bash
 
     - name: Run Docker Build
       run: |
