@@ -21,7 +21,7 @@ set(ENGINE_SRC_ROOT_DIR "${CMAKE_SOURCE_DIR}/rts")
 
 ### Assemble libraries
 list(APPEND engineDedicatedLibraries ${Boost_REGEX_LIBRARY})
-list(APPEND engineDedicatedLibraries lua archives 7zip ${SPRING_MINIZIP_LIBRARY} ${ZLIB_LIBRARY} gflags)
+list(APPEND engineDedicatedLibraries lua archives 7zip ${SPRING_MINIZIP_LIBRARY} ${ZLIB_LIBRARIES} gflags)
 list(APPEND engineDedicatedLibraries headlessStubs engineSystemNet)
 list(APPEND engineDedicatedLibraries ${LIBUNWIND_LIBRARIES})
 list(APPEND engineDedicatedLibraries ${LZMA_LIBRARY})

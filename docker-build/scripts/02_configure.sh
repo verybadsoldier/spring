@@ -2,13 +2,16 @@ cd "${SPRING_DIR}"
 
 rm -rf "${BUILD_DIR}"
 mkdir -p "${BUILD_DIR}"
-mkdir -p "${BUILD_DIR}"/bin-dir
+
+cd "${BUILD_DIR}"
+
+conan install .. -pr "${PLATFORM}" --build=missing
 
 EXTRA_CMAKE_ARGS=()
 if [ "${PLATFORM}" == "linux-64" ]; then
-    WORKDIR=$(pwd)/spring-static-libs
-    LIBDIR=$WORKDIR/lib
-    INCLUDEDIR=$WORKDIR/include
+    STATIC_DIR="${SPRING_DIR}/spring-static-libs"
+    LIBDIR="${STATIC_DIR}/lib"
+    INCLUDEDIR="${STATIC_DIR}/include"
 
     EXTRA_CMAKE_ARGS+=(
         -DPREFER_STATIC_LIBS:BOOL=1
@@ -41,8 +44,8 @@ if [ "${PLATFORM}" == "linux-64" ]; then
         -DJPEG_LIBRARY:PATH=${LIBDIR}/libjpeg.a
         -DTIFF_INCLUDE_DIR:PATH=${INCLUDEDIR}
         -DTIFF_LIBRARY_RELEASE:PATH=${LIBDIR}/libtiff.a
-        -DZLIB_INCLUDE_DIR:PATH=${INCLUDEDIR}
-        -DZLIB_LIBRARY_RELEASE:PATH=${LIBDIR}/libz.a
+        #-DZLIB_INCLUDE_DIR:PATH=${INCLUDEDIR}
+        #-DZLIB_LIBRARY_RELEASE:PATH=${LIBDIR}/libz.a
         -DGLEW_INCLUDE_DIR:PATH=${INCLUDEDIR}
         -DGLEW_LIBRARIES:PATH=${LIBDIR}/libGLEW.a
         -DLIBUNWIND_INCLUDE_DIRS:PATH=${INCLUDEDIR}
@@ -59,7 +62,6 @@ if [ "${PLATFORM}" == "linux-64" ]; then
     )
 fi
 
-cd "${BUILD_DIR}"
 cmake \
     -DCMAKE_TOOLCHAIN_FILE="/scripts/${PLATFORM}.cmake" \
     -DMARCH_FLAG="${MYARCHTUNE}" \

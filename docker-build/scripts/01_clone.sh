@@ -27,8 +27,15 @@ git submodule update --init --recursive
 
 if [ "${PLATFORM}" == "windows-64" ]; then
     git clone "${SPRINGRTS_AUX_URL_PREFIX}/mingwlibs64.git" mingwlibs64
+
+    # Remove libraries handled by conan
+    rm -rf mingwlibs64/dll/zlib1.dll mingwlibs64/include/zlib1.h
+
 elif [ "${PLATFORM}" == "linux-64" ]; then
     git clone "${SPRINGRTS_AUX_URL_PREFIX}/spring-static-libs.git" -b $UBUNTU_VER spring-static-libs
+
+    # Remove libraries handled by conan
+    rm -rf spring-static-libs/lib/libz.a spring-static-libs/inc/zlib.h
 else
     echo "Unsupported platform: '${PLATFORM}'"
     exit 1

@@ -9,6 +9,8 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULES_SPRING}/OverrideFlags.cmake"
 
 project(Spring)
 
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+
 add_definitions(-DFMT_HEADER_ONLY) #for fmt lib
 
 option(INSTALL_PORTABLE "Make a portable installation (instead of regular system installation)" FALSE)

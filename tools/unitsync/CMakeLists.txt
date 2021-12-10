@@ -11,7 +11,7 @@ find_package_static(ZLIB REQUIRED)
 
 list(APPEND unitsync_libs ${CMAKE_DL_LIBS})
 list(APPEND unitsync_libs 7zip lua headlessStubs archives)
-list(APPEND unitsync_libs ${ZLIB_LIBRARY})
+list(APPEND unitsync_libs ${ZLIB_LIBRARIES})
 list(APPEND unitsync_libs ${SPRING_MINIZIP_LIBRARY})
 
 if (WIN32)

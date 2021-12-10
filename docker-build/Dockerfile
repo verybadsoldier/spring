@@ -69,8 +69,10 @@ RUN apt-get update -y; \
         pigz \
         software-properties-common \
         python3-pip; \
+        pip3 install conan; \
         pip3 install cmake==$cmake_version; \
-        apt purge python3-pip -y; apt auto-remove -y
+        apt purge python3-pip -y
+#        apt auto-remove -y # doing auto-remove will remove packages needed by conan (?!)
 
 # GCC-10 PPA (linux-64)
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y; \
@@ -101,8 +103,14 @@ ENV CCACHE_DIR=/ccache
 ENV CCACHE_CONFIGPATH=/etc/ccache.conf
 ENV PATH="/usr/lib/ccache:${PATH}"
 
-COPY scripts /scripts
 ENV PATH="/scripts:${PATH}"
+
+COPY scripts /scripts
+
+# conan
+RUN conan profile new linux-64 --detect; \
+        conan profile update settings.compiler.libcxx=libstdc++11 linux-64; \
+        mv /scripts/conan_profile_windows-64 "${HOME}/.conan/profiles/windows-64"
 
 # set primary config so no config from cache directory will be used
 COPY config/ccache.conf /etc/ccache.conf
