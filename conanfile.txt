@@ -2,7 +2,7 @@
 zlib/1.2.11
 
 [options]
-zlib:shared=False
+zlib:shared=True
 
 [generators]
 cmake_find_package
