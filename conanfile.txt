@@ -1,5 +1,6 @@
 [requires]
 zlib/1.2.11
+sdl/2.0.18
 
 [options]
 zlib:shared=True
