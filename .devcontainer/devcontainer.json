@@ -1,0 +1,23 @@
+{
+    "build": {
+        "dockerfile": "../docker-build/${localEnv:RECOIL_DEVCONTAINER_DOCKERFILE:Dockerfile}"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools"
+            ]
+        }
+    },
+    "forwardPorts": [
+        3000
+    ],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/spring,type=bind",
+    "workspaceFolder": "/spring",
+    "mounts": [
+        "source=${localWorkspaceFolder}/ccache.tmp,target=/ccache,type=bind,consistency=cached",
+        "source=${localWorkspaceFolder}/publish,target=/publish,type=bind,consistency=cached"
+    ],
+    "postCreateCommand": "bash -c \"echo '. /scripts/00_setup.sh -l' >> /root/.bashrc;. /scripts/00_setup.sh -l;. /scripts/01_clone.sh;. /scripts/02_configure.sh\";sed -i \"s/\\(max_size = \\).*/\\110G/g\" /etc/ccache.conf"
+}
