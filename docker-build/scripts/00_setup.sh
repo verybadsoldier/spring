@@ -5,7 +5,6 @@ PLATFORM="windows-64"
 DUMMY=
 ENABLE_CCACHE=1
 DEBUG_CCACHE=
-STRIP_SYMBOLS=1
 PUBLISH_ARTIFACTS=
 
 MYARCHTUNE=""
@@ -61,7 +60,6 @@ do
         r) MYBUILDTYPEFLAGS=${OPTARG};;
         f) MYCFLAGS=${OPTARG};;
         C) MYCMAKEFLAGS=${OPTARG};;
-        s) STRIP_SYMBOLS=${OPTARG};;
         z) DEBUG_CCACHE=${OPTARG};;
         l) LOCAL_BUILD=true;;
         w) SUPPRESS_OUTDATED=true;;
@@ -125,7 +123,6 @@ echo "Extra cmake flags: ${MYCMAKEFLAGS}"
 echo "Dummy mode: ${DUMMY}"
 echo "Enable ccache: ${ENABLE_CCACHE}"
 echo "Debug ccache: ${DEBUG_CCACHE}"
-echo "Strip debug symbols: ${STRIP_SYMBOLS}"
 echo "---------------------------------"
 
 # configuring ccache
