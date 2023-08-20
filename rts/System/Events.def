@@ -43,6 +43,7 @@
 	SETUP_EVENT(UnitDestroyed,    MANAGED_BIT)
 	SETUP_EVENT(UnitTaken,        MANAGED_BIT)
 	SETUP_EVENT(UnitGiven,        MANAGED_BIT)
+	SETUP_EVENT(ResourceTransfered, MANAGED_BIT)
 
 	SETUP_EVENT(UnitIdle,       MANAGED_BIT)
 	SETUP_EVENT(UnitCommand,    MANAGED_BIT)

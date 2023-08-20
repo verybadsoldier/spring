@@ -128,6 +128,7 @@ class CLuaHandle : public CEventClient
 		void UnitDestroyed(const CUnit* unit, const CUnit* attacker) override;
 		void UnitTaken(const CUnit* unit, int oldTeam, int newTeam) override;
 		void UnitGiven(const CUnit* unit, int oldTeam, int newTeam) override;
+		void ResourceTransfered(int oldTeam, int newTeam, const char* type, float amount, const char* trigger);
 
 		void UnitIdle(const CUnit* unit) override;
 		void UnitCommand(const CUnit* unit, const Command& command, int playerNum, bool fromSynced, bool fromLua) override;

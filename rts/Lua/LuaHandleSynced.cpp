@@ -1171,7 +1171,6 @@ bool CSyncedLuaHandle::AllowResourceTransfer(int oldTeam, int newTeam, const cha
 	return allow;
 }
 
-
 /*** Determines if this unit can be controlled directly in FPS view.
  *
  * @function AllowDirectUnitControl

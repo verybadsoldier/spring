@@ -1121,6 +1121,30 @@ void CLuaHandle::UnitGiven(const CUnit* unit, int oldTeam, int newTeam)
 }
 
 
+/*** Called when a resource is transferred between teams.
+ *
+ * @function ResourceTransfered
+ */
+void CLuaHandle::ResourceTransfered(int oldTeam, int newTeam, const char* type, float amount, const char* trigger)
+{
+	LUA_CALL_IN_CHECK(L);
+	luaL_checkstack(L, 7, __func__);
+	const LuaUtils::ScopedDebugTraceBack traceBack(L);
+
+	static const LuaHashString cmdStr(__func__);
+	if (!cmdStr.GetGlobalFunc(L))
+		return;
+
+/*	lua_pushnumber(L, unit->id);
+	lua_pushnumber(L, unit->unitDef->id);
+	lua_pushnumber(L, newTeam);
+	lua_pushnumber(L, oldTeam);
+*/
+	// call the routine
+	RunCallInTraceback(L, cmdStr, 4, 0, traceBack.GetErrFuncIdx(), false);
+}
+
+
 /*** Called when a unit is idle (empty command queue).
  *
  * @function UnitIdle

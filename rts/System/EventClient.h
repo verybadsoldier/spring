@@ -129,6 +129,7 @@ class CEventClient
 		virtual void UnitDestroyed(const CUnit* unit, const CUnit* attacker) {}
 		virtual void UnitTaken(const CUnit* unit, int oldTeam, int newTeam) {}
 		virtual void UnitGiven(const CUnit* unit, int oldTeam, int newTeam) {}
+		virtual void ResourceTransfered(int oldTeam, int newTeam, const char* type, float amount, const char* trigger) {}
 
 		virtual void UnitIdle(const CUnit* unit) {}
 		virtual void UnitCommand(const CUnit* unit, const Command& command, int playerNum, bool fromSynced, bool fromLua) {}

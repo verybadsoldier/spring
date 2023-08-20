@@ -68,6 +68,7 @@ class CEventHandler
 		void UnitDestroyed(const CUnit* unit, const CUnit* attacker);
 		void UnitTaken(const CUnit* unit, int oldTeam, int newTeam);
 		void UnitGiven(const CUnit* unit, int oldTeam, int newTeam);
+		void ResourceTransfered(int oldTeam, int newTeam, const char* type, float amount, const char* trigger);
 
 
 		//FIXME no events
