@@ -1,0 +1,8 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/build-windows-64-RELWITHDEBINFO",
+    "cmake.generator": "Unix Makefiles",
+    "files.associations": {
+        "*.def": "cpp"
+    },
+
+}
